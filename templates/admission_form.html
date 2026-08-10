@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admission Form - Gumma Public School</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="dashboard-body">
+    <!-- Navbar Header -->
+    <header class="dash-header">
+        <div class="header-left">
+            <a href="{{ url_for('home') }}" class="logo-link">
+                <div class="dash-logo">
+                    <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                        <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/>
+                    </svg>
+                </div>
+                <div class="header-title">
+                    <h1>Gumma Public School</h1>
+                    <span>Admission Portal</span>
+                </div>
+            </a>
+        </div>
+        
+        <nav class="nav-links">
+            <a href="{{ url_for('home') }}" class="nav-link">Home</a>
+            <a href="{{ url_for('contact') }}" class="nav-link">Contact</a>
+            {% if current_username %}
+                <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
+                <a href="{{ url_for('admission_form') }}" class="nav-link active">Apply</a>
+                <a href="{{ url_for('status') }}" class="nav-link">Status</a>
+                <a href="{{ url_for('fees') }}" class="nav-link">Fees</a>
+            {% endif %}
+        </nav>
+
+        <div class="header-right">
+            <div class="user-profile">
+                <div class="avatar">{{ current_username[0]|upper }}</div>
+                <span class="username">{{ current_username }}</span>
+            </div>
+            <a href="{{ url_for('logout') }}" class="btn-logout">Logout</a>
+        </div>
+    </header>
+
+    <main class="dash-container">
+        <div class="card max-w-form">
+            <div class="card-header">
+                <h2>Student Admission Application</h2>
+                <span class="status-indicator">Academic Session 2026-2027</span>
+            </div>
+            
+            <div class="card-body">
+                {% if message %}
+                <div class="alert alert-error">
+                    <span>{{ message }}</span>
+                </div>
+                {% endif %}
+
+                <form action="{{ url_for('admission_form') }}" method="POST" enctype="multipart/form-data" class="admission-form">
+                    
+                    <!-- Section 1: Student Info -->
+                    <div class="form-section-group">
+                        <h3 class="form-section-title">1. Student Personal Details</h3>
+                        <div class="form-grid-2">
+                            <div class="input-group">
+                                <label for="student_name">Full Name of Student <span class="required">*</span></label>
+                                <input type="text" id="student_name" name="student_name" value="{{ application.student_name if application else '' }}" required placeholder="First and last name">
+                            </div>
+                            <div class="form-grid-2-inner">
+                                <div class="input-group">
+                                    <label for="dob">Date of Birth <span class="required">*</span></label>
+                                    <input type="date" id="dob" name="dob" value="{{ application.dob if application else '' }}" required>
+                                </div>
+                                <div class="input-group">
+                                    <label for="gender">Gender <span class="required">*</span></label>
+                                    <select id="gender" name="gender" required>
+                                        <option value="" disabled {{ 'selected' if not application else '' }}>Select</option>
+                                        <option value="Male" {{ 'selected' if application and application.gender == 'Male' else '' }}>Male</option>
+                                        <option value="Female" {{ 'selected' if application and application.gender == 'Female' else '' }}>Female</option>
+                                        <option value="Other" {{ 'selected' if application and application.gender == 'Other' else '' }}>Other</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Parent Info -->
+                    <div class="form-section-group">
+                        <h3 class="form-section-title">2. Parent / Guardian Details</h3>
+                        <div class="form-grid-2">
+                            <div class="input-group">
+                                <label for="parent_name">Parent/Guardian Name <span class="required">*</span></label>
+                                <input type="text" id="parent_name" name="parent_name" value="{{ application.parent_name if application else '' }}" required placeholder="Full name of parent">
+                            </div>
+                            <div class="input-group">
+                                <label for="parent_email">Email Address <span class="required">*</span></label>
+                                <input type="email" id="parent_email" name="parent_email" value="{{ application.parent_email if application else '' }}" required placeholder="email@example.com">
+                            </div>
+                            <div class="input-group">
+                                <label for="parent_phone">Mobile Number <span class="required">*</span></label>
+                                <input type="tel" id="parent_phone" name="parent_phone" value="{{ application.parent_phone if application else '' }}" required placeholder="10-digit mobile number">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Academic Details -->
+                    <div class="form-section-group">
+                        <h3 class="form-section-title">3. Academic Admission Details</h3>
+                        <div class="form-grid-2">
+                            <div class="input-group">
+                                <label for="grade_applying">Applying for Grade <span class="required">*</span></label>
+                                <select id="grade_applying" name="grade_applying" required>
+                                    <option value="" disabled {{ 'selected' if not application else '' }}>Select target grade</option>
+                                    <option value="Grade 1" {{ 'selected' if application and application.grade_applying == 'Grade 1' else '' }}>Grade 1</option>
+                                    <option value="Grade 6" {{ 'selected' if application and application.grade_applying == 'Grade 6' else '' }}>Grade 6</option>
+                                    <option value="Grade 9" {{ 'selected' if application and application.grade_applying == 'Grade 9' else '' }}>Grade 9</option>
+                                    <option value="Grade 11 (Science)" {{ 'selected' if application and application.grade_applying == 'Grade 11 (Science)' else '' }}>Grade 11 (Science)</option>
+                                    <option value="Grade 11 (Commerce)" {{ 'selected' if application and application.grade_applying == 'Grade 11 (Commerce)' else '' }}>Grade 11 (Commerce)</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="previous_school">Previous School Attended</label>
+                                <input type="text" id="previous_school" name="previous_school" value="{{ application.previous_school if application else '' }}" placeholder="Name of last school attended">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Document Uploads -->
+                    <div class="form-section-group">
+                        <h3 class="form-section-title">4. Document Uploads (PDF/JPG/PNG max 16MB)</h3>
+                        <div class="form-grid-2">
+                            <div class="input-group">
+                                <label for="tc_file">Transfer Certificate (TC)</label>
+                                <input type="file" id="tc_file" name="tc_file" class="file-input">
+                                {% if application and application.tc_filename %}
+                                <div class="file-uploaded-link">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    <span>Uploaded: <a href="{{ url_for('static', filename='uploads/' + application.tc_filename) }}" target="_blank">{{ application.tc_filename }}</a></span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="input-group">
+                                <label for="photo_file">Passport Size Photo</label>
+                                <input type="file" id="photo_file" name="photo_file" class="file-input">
+                                {% if application and application.photo_filename %}
+                                <div class="file-uploaded-link">
+                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                    <span>Uploaded: <a href="{{ url_for('static', filename='uploads/' + application.photo_filename) }}" target="_blank">{{ application.photo_filename }}</a></span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions-submit">
+                        <button type="submit" class="btn btn-primary btn-submit-large">
+                            <span>Submit Admission Application</span>
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
